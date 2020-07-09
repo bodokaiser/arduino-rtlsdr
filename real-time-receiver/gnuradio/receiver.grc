@@ -44,11 +44,32 @@ blocks:
     coordinate: [272, 12]
     rotation: 0
     state: true
+- name: clock_freq
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: Clock Frequency
+    min_len: '200'
+    orient: Qt.Horizontal
+    rangeType: float
+    start: 1e3
+    step: '1'
+    stop: 1e5
+    value: 1e3
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1196, 76]
+    rotation: 0
+    state: true
 - name: decimation
   id: variable
   parameters:
     comment: ''
-    value: '128'
+    value: '64'
   states:
     bus_sink: false
     bus_source: false
@@ -85,40 +106,116 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [636, 343]
+    coordinate: [637, 343]
     rotation: 0
-    state: true
-- name: blocks_char_to_float_0
-  id: blocks_char_to_float
+    state: bypassed
+- name: analog_dpll_bb_0
+  id: analog_dpll_bb
   parameters:
     affinity: ''
     alias: ''
     comment: ''
+    gain: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    period: ''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1776, 265]
+    rotation: 0
+    state: disabled
+- name: blocks_burst_tagger_0
+  id: blocks_burst_tagger
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    false_key: burst
+    false_value: 'False'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    true_key: burst
+    true_value: 'True'
+    type: float
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1584, 239]
+    rotation: 0
+    state: true
+- name: blocks_char_to_short_0
+  id: blocks_char_to_short
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1482, 352]
+    rotation: 0
+    state: true
+- name: blocks_complex_to_mag_squared_0
+  id: blocks_complex_to_mag_squared
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [795, 240]
+    rotation: 0
+    state: true
+- name: blocks_moving_average_xx_0
+  id: blocks_moving_average_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    length: '5'
+    max_iter: '4000'
     maxoutbuf: '0'
     minoutbuf: '0'
     scale: '1'
+    type: float
     vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1440, 259]
+    coordinate: [1002, 286]
     rotation: 0
-    state: disabled
-- name: blocks_complex_to_mag_0
-  id: blocks_complex_to_mag
+    state: true
+- name: blocks_peak_detector_xb_0
+  id: blocks_peak_detector_xb
   parameters:
     affinity: ''
     alias: ''
+    alpha: '0.001'
     comment: ''
+    look_ahead: '10'
     maxoutbuf: '0'
     minoutbuf: '0'
-    vlen: '1'
+    threshold_factor_fall: '0.40'
+    threshold_factor_rise: '0.25'
+    type: float
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [786, 239]
+    coordinate: [1295, 304]
     rotation: 0
     state: true
 - name: blocks_threshold_ff_0
@@ -127,68 +224,18 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    high: '0.6'
+    high: '0.5'
     init: '0'
-    low: '0.3'
+    low: '0.5'
     maxoutbuf: '0'
     minoutbuf: '0'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1040, 239]
+    coordinate: [1196, 227]
     rotation: 0
     state: true
-- name: epy_block_0
-  id: epy_block
-  parameters:
-    _source_code: "import numpy as np\n\nfrom gnuradio import gr\n\ndef bits_to_uint(bits):\n\
-      \    return np.dot(bits, 2**np.arange(len(bits))[::-1])\n\n\nclass Parser:\n\
-      \n    def __init__(self, sample_rate=16e3, sequence_timeout=5e-3, transmission_timeout=20e-3,\
-      \ on_width=1.0e-3, off_width=0.01e-3):\n        self.bits = []\n        self.values\
-      \ = []\n        self.median = 0\n\n        self.on_width = on_width\n      \
-      \  self.off_width = off_width\n        self.time_step = 1 / sample_rate\n\n\
-      \        self.sequence_timeout = sequence_timeout\n        self.transmission_timeout\
-      \ = transmission_timeout\n\n        self.low_time = 0\n        self.high_time\
-      \ = 0\n\n    def parse(self, samples):\n        for sample in np.nditer(samples):\n\
-      \            self.parse_sample(sample)\n\n    def parse_sample(self, sample):\n\
-      \        if self.high_time == 0:\n            if sample == 0:\n            \
-      \    self.low_time += self.time_step\n\n                if self.low_time >=\
-      \ self.sequence_timeout:\n                    if len(self.bits) == 0:\n    \
-      \                    self.low_time = 0\n                        return\n\n \
-      \                   self.values.append(bits_to_uint(self.bits))\n          \
-      \          self.bits = []\n\n                    if len(self.values) == 10:\n\
-      \                        self.median = np.median(self.values).round().astype(np.uint)\n\
-      \                        self.low_time = 0\n                        self.values\
-      \ = []\n                        return\n\n\n            if sample == 1:\n  \
-      \              self.low_time = 0\n                self.high_time += self.time_step\n\
-      \n        else:\n            if sample == 0:\n                if self.high_time\
-      \ >= self.on_width:\n                    self.bits.append(1)\n             \
-      \   else:\n                    if self.high_time >= self.off_width:\n      \
-      \                  self.bits.append(0)\n\n                self.high_time = 0\n\
-      \                self.low_time += self.time_step\n\n\n            if sample\
-      \ == 1:\n                self.high_time += self.time_step\n\n\n\nclass ook_demod_block(gr.sync_block):\n\
-      \n    def __init__(self):\n        gr.sync_block.__init__(\n            self,\n\
-      \            name='OOK Demod',\n            in_sig=[np.float32],\n         \
-      \   out_sig=[np.uint8]\n        )\n\n        self.parser = Parser()\n\n    def\
-      \ work(self, input_items, output_items):\n        if input_items[0].sum() >\
-      \ 0:\n            self.parser.parse(input_items[0])\n\n        if len(self.parser.values)\
-      \ > 0:\n            output_items[0] = self.parser.values[-1]\n        else:\n\
-      \            output_items[0] = 1\n        \n        return 1\n"
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-  states:
-    _io_cache: ('OOK Demod', 'ook_demod_block', [], [('0', 'float', 1)], [('0', 'byte',
-      1)], '', [])
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1242, 260]
-    rotation: 0
-    state: disabled
 - name: freq_xlating_fir_filter_xxx_0
   id: freq_xlating_fir_filter_xxx
   parameters:
@@ -206,7 +253,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [393, 222]
+    coordinate: [393, 233]
     rotation: 0
     state: true
 - name: qtgui_freq_sink_x_0
@@ -286,9 +333,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [640, 61]
+    coordinate: [631, 62]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: qtgui_freq_sink_x_1
   id: qtgui_freq_sink_x
   parameters:
@@ -368,7 +415,7 @@ blocks:
     bus_structure: null
     coordinate: [822, 450]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: qtgui_freq_sink_x_2
   id: qtgui_freq_sink_x
   parameters:
@@ -448,7 +495,7 @@ blocks:
     bus_structure: null
     coordinate: [405, 438]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: qtgui_time_sink_x_0
   id: qtgui_time_sink_x
   parameters:
@@ -502,10 +549,10 @@ blocks:
     marker7: '-1'
     marker8: '-1'
     marker9: '-1'
-    name: Decimal
+    name: '""'
     nconnections: '1'
     size: '1024'
-    srate: samp_rate / decimation
+    srate: samp_rate
     stemplot: 'False'
     style1: '1'
     style10: '1'
@@ -518,11 +565,11 @@ blocks:
     style8: '1'
     style9: '1'
     tr_chan: '0'
-    tr_delay: '0'
+    tr_delay: -1e-3
     tr_level: '0.0'
-    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_mode: qtgui.TRIG_MODE_TAG
     tr_slope: qtgui.TRIG_SLOPE_POS
-    tr_tag: '""'
+    tr_tag: burst
     type: float
     update_time: '0.10'
     width1: '1'
@@ -543,106 +590,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1519, 57]
+    coordinate: [1725, 79]
     rotation: 0
-    state: disabled
-- name: qtgui_time_sink_x_1
-  id: qtgui_time_sink_x
-  parameters:
-    affinity: ''
-    alias: ''
-    alpha1: '1.0'
-    alpha10: '1.0'
-    alpha2: '1.0'
-    alpha3: '1.0'
-    alpha4: '1.0'
-    alpha5: '1.0'
-    alpha6: '1.0'
-    alpha7: '1.0'
-    alpha8: '1.0'
-    alpha9: '1.0'
-    autoscale: 'False'
-    axislabels: 'True'
-    color1: blue
-    color10: dark blue
-    color2: red
-    color3: green
-    color4: black
-    color5: cyan
-    color6: magenta
-    color7: yellow
-    color8: dark red
-    color9: dark green
-    comment: ''
-    ctrlpanel: 'False'
-    entags: 'True'
-    grid: 'False'
-    gui_hint: ''
-    label1: Signal 1
-    label10: Signal 10
-    label2: Signal 2
-    label3: Signal 3
-    label4: Signal 4
-    label5: Signal 5
-    label6: Signal 6
-    label7: Signal 7
-    label8: Signal 8
-    label9: Signal 9
-    legend: 'True'
-    marker1: '-1'
-    marker10: '-1'
-    marker2: '-1'
-    marker3: '-1'
-    marker4: '-1'
-    marker5: '-1'
-    marker6: '-1'
-    marker7: '-1'
-    marker8: '-1'
-    marker9: '-1'
-    name: '"Analog"'
-    nconnections: '1'
-    size: '1024'
-    srate: samp_rate / decimation
-    stemplot: 'False'
-    style1: '1'
-    style10: '1'
-    style2: '1'
-    style3: '1'
-    style4: '1'
-    style5: '1'
-    style6: '1'
-    style7: '1'
-    style8: '1'
-    style9: '1'
-    tr_chan: '0'
-    tr_delay: '0'
-    tr_level: '0.0'
-    tr_mode: qtgui.TRIG_MODE_FREE
-    tr_slope: qtgui.TRIG_SLOPE_POS
-    tr_tag: '""'
-    type: float
-    update_time: '0.10'
-    width1: '1'
-    width10: '1'
-    width2: '1'
-    width3: '1'
-    width4: '1'
-    width5: '1'
-    width6: '1'
-    width7: '1'
-    width8: '1'
-    width9: '1'
-    ylabel: Amplitude
-    ymax: '1'
-    ymin: '-1'
-    yunit: '""'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [928, 60]
-    rotation: 0
-    state: disabled
+    state: true
 - name: qtgui_time_sink_x_1_0
   id: qtgui_time_sink_x
   parameters:
@@ -697,7 +647,7 @@ blocks:
     marker8: '-1'
     marker9: '-1'
     name: Digital
-    nconnections: '1'
+    nconnections: '2'
     size: '1024'
     srate: samp_rate / decimation
     stemplot: 'False'
@@ -712,9 +662,9 @@ blocks:
     style8: '1'
     style9: '1'
     tr_chan: '0'
-    tr_delay: '0'
+    tr_delay: -10e-3
     tr_level: '0.0'
-    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_mode: qtgui.TRIG_MODE_AUTO
     tr_slope: qtgui.TRIG_SLOPE_POS
     tr_tag: '""'
     type: float
@@ -737,7 +687,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1169, 57]
+    coordinate: [1427, 68]
     rotation: 0
     state: enabled
 - name: rtlsdr_source_0
@@ -1094,38 +1044,21 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [87, 163]
-    rotation: 0
-    state: true
-- name: zeromq_pub_sink_0
-  id: zeromq_pub_sink
-  parameters:
-    address: tcp://127.0.0.1:3000
-    affinity: ''
-    alias: ''
-    comment: ''
-    hwm: '-1'
-    pass_tags: 'False'
-    timeout: '100'
-    type: float
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1278, 356]
+    coordinate: [64, 173]
     rotation: 0
     state: true
 
 connections:
-- [analog_agc_xx_0, '0', blocks_complex_to_mag_0, '0']
+- [analog_agc_xx_0, '0', blocks_complex_to_mag_squared_0, '0']
 - [analog_agc_xx_0, '0', qtgui_freq_sink_x_1, '0']
-- [blocks_char_to_float_0, '0', qtgui_time_sink_x_0, '0']
-- [blocks_complex_to_mag_0, '0', blocks_threshold_ff_0, '0']
-- [blocks_complex_to_mag_0, '0', qtgui_time_sink_x_1, '0']
+- [blocks_burst_tagger_0, '0', qtgui_time_sink_x_0, '0']
+- [blocks_char_to_short_0, '0', blocks_burst_tagger_0, '1']
+- [blocks_complex_to_mag_squared_0, '0', blocks_moving_average_xx_0, '0']
+- [blocks_moving_average_xx_0, '0', blocks_threshold_ff_0, '0']
+- [blocks_peak_detector_xb_0, '0', blocks_char_to_short_0, '0']
+- [blocks_threshold_ff_0, '0', blocks_burst_tagger_0, '0']
+- [blocks_threshold_ff_0, '0', blocks_peak_detector_xb_0, '0']
 - [blocks_threshold_ff_0, '0', qtgui_time_sink_x_1_0, '0']
-- [blocks_threshold_ff_0, '0', zeromq_pub_sink_0, '0']
-- [epy_block_0, '0', blocks_char_to_float_0, '0']
 - [freq_xlating_fir_filter_xxx_0, '0', analog_agc_xx_0, '0']
 - [freq_xlating_fir_filter_xxx_0, '0', qtgui_freq_sink_x_0, '0']
 - [rtlsdr_source_0, '0', freq_xlating_fir_filter_xxx_0, '0']
